@@ -1,82 +1,36 @@
 Write a python program to implement Decision Tree whether or not to play Tennis. 
 
-upload iris.csv file in jupyter notebook
-program -
+import numpy as np
+import pandas as pd
 
-i) with csv file
-pip install scikit-learn
+PlayTennis = pd.read_csv("PlayTennis.csv") 
 
-import pandas as pd 
-from sklearn import tree
+#We can convert all the non numerical values into numerical values using LabelEncoder
+from sklearn.preprocessing import LabelEncoder
+Le = LabelEncoder()
+PlayTennis['outlook'] = Le.fit_transform(PlayTennis['outlook'])
+PlayTennis['temp'] = Le.fit_transform(PlayTennis['temp'])
+PlayTennis['humidity'] = Le.fit_transform(PlayTennis['humidity'])
+PlayTennis['windy'] = Le.fit_transform(PlayTennis['windy'])
+PlayTennis['play'] = Le.fit_transform(PlayTennis['play'])
 
-# Load data from CSV file
-data = pd.read_csv('tennis_data.csv')
+#Lets split the training data and its coresponding prediction values.
+y = PlayTennis['play'] 
+X = PlayTennis.drop(['play'],axis=1) 
 
-# Extract features and labels
-features = data.drop('PlayTennis', axis=1)
-labels = data['PlayTennis']
+# Fitting the model
+from sklearn import tree 
+clf = tree.DecisionTreeClassifier(criterion = 'entropy') 
+clf = clf.fit(X, y)
 
-# Convert categorical variables to numerical using one-hot encoding
-features = pd.get_dummies(features)
+# We can visualize the tree using tree.plot_tree
+tree.plot_tree(clf)
+import graphviz 
+dot_data = tree.export_graphviz(clf, out_file=None) 
+graph = graphviz.Source(dot_data) 
+graph
 
-# Create a decision tree classifier
-clf = tree.DecisionTreeClassifier()
 
-# Train the classifier
-clf = clf.fit(features, labels)
-
-# Function to predict whether to play tennis for a new input
-def predict(outlook, temperature, humidity, wind):
-    # Convert input to numerical using one-hot encoding
-    input_data = pd.DataFrame({'Outlook': [outlook], 'Temperature': [temperature], 'Humidity': [humidity], 'Wind': [wind]})
-    input_data = pd.get_dummies(input_data)
-
-    # Predict
-    prediction = clf.predict(input_data)
-    return prediction[0]
-
-# Example usage
-new_input = {'Outlook': 'Sunny', 'Temperature': 'Hot', 'Humidity': 'High', 'Wind': 'Weak'}
-result = predict(**new_input)
-print(f"Prediction for {new_input}: {result}")
-------------------------------------------------------------------------------------------------------------------------------------------
-ii) with data set
-pip install scikit-learn
-
-# Importing necessary libraries 
-from sklearn import tree
-
-# Data: Outlook, Temperature, Humidity, Wind
-features = [
-    ['Sunny', 'Hot', 'High', 'Weak'],
-    ['Sunny', 'Hot', 'High', 'Strong'],
-    ['Overcast', 'Hot', 'High', 'Weak'],
-    ['Rain', 'Mild', 'High', 'Weak'],
-    ['Rain', 'Cool', 'Normal', 'Weak'],
-    ['Rain', 'Cool', 'Normal', 'Strong'],
-    ['Overcast', 'Cool', 'Normal', 'Strong'],
-    ['Sunny', 'Mild', 'High', 'Weak'],
-    ['Sunny', 'Cool', 'Normal', 'Weak'],
-    ['Rain', 'Mild', 'Normal', 'Weak'],
-    ['Sunny', 'Mild', 'Normal', 'Strong'],
-    ['Overcast', 'Mild', 'High', 'Strong'],
-    ['Overcast', 'Hot', 'Normal', 'Weak'],
-    ['Rain', 'Mild', 'High', 'Strong']
-]
-
-# Target: PlayTennis (Yes/No)
-labels = ['No', 'No', 'Yes', 'Yes', 'Yes', 'No', 'Yes', 'No', 'Yes', 'Yes', 'Yes', 'Yes', 'Yes', 'No']
-
-# Create a decision tree classifier
-clf = tree.DecisionTreeClassifier()
-
-# Train the classifier
-clf = clf.fit(features, labels)
-
-# Predict whether to play tennis for a new input
-def predict(weather, temperature, humidity, wind):
-    prediction = clf.predict([[weather, temperature, humidity, wind]])
-    return prediction[0]
 
 # Example usage
 new_input = ['Sunny', 'Hot', 'High', 'Weak']
