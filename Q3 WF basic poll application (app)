@@ -1,0 +1,3 @@
+Develop a basic poll application (app).It should consist of two parts: 
+        a)  A public site in which user can pick their favourite programming language and vote. 
+        b)  An admin site that lets you add, change and delete programming languages.
