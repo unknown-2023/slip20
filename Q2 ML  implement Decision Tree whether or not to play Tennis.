@@ -25,14 +25,5 @@ clf = clf.fit(X, y)
 
 # We can visualize the tree using tree.plot_tree
 tree.plot_tree(clf)
-import graphviz 
-dot_data = tree.export_graphviz(clf, out_file=None) 
-graph = graphviz.Source(dot_data) 
-graph
 
 
-
-# Example usage
-new_input = ['Sunny', 'Hot', 'High', 'Weak']
-result = predict(*new_input)
-print(f"Prediction for {new_input}: {result}")
