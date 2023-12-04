@@ -1,3 +1,118 @@
 Develop a basic poll application (app).It should consist of two parts: 
         a)  A public site in which user can pick their favourite programming language and vote. 
         b)  An admin site that lets you add, change and delete programming languages.
+
+Create a Django Project and App:
+Create a Django project and an app within the project:
+
+django-admin startproject poll_project
+cd poll_project
+python manage.py startapp poll_app
+
+
+Define Models:
+Open the models.py file in the poll_app directory and define the models for programming languages and votes.
+
+# poll_app/models.py
+from django.db import models
+
+class Language(models.Model):
+    name = models.CharField(max_length=50)
+
+class Vote(models.Model):
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField()
+
+Apply Migrations:
+Run the following commands to apply migrations and create the database tables:
+
+python manage.py makemigrations
+python manage.py migrate
+
+Create Views:
+Open the views.py file in the poll_app directory and define views for the public site and admin site.
+
+# poll_app/views.py
+from django.shortcuts import render, redirect
+from .models import Language, Vote
+
+def index(request):
+    languages = Language.objects.all()
+    return render(request, 'poll_app/index.html', {'languages': languages})
+
+def admin(request):
+    languages = Language.objects.all()
+    return render(request, 'poll_app/admin.html', {'languages': languages})
+
+Create URLs:
+Define URLs in the urls.py file in the poll_app directory.
+
+# poll_app/urls.py
+from django.urls import path
+from .views import index, admin
+
+urlpatterns = [
+    path('', index, name='index'),
+    path('admin/', admin, name='admin'),
+]
+
+Include these URLs in the project's urls.py.
+
+# poll_project/urls.py
+from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('poll_app.urls')),
+]
+
+Create Templates:
+Create HTML templates for the public site (index.html) and admin site (admin.html) in the poll_app/templates/poll_app directory.
+
+poll_app/templates/poll_app/index.html:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Language Poll</title>
+</head>
+<body>
+    <h1>Vote for Your Favorite Programming Language</h1>
+    <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+        {% for language in languages %}
+            <label>
+                <input type="radio" name="language" value="{{ language.id }}">
+                {{ language.name }}
+            </label><br>
+        {% endfor %}
+        <button type="submit">Vote</button>
+    </form>
+</body>
+</html>
+
+poll_app/templates/poll_app/admin.html:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Programming Language Poll</title>
+</head>
+<body>
+    <h1>Admin - Manage Programming Languages</h1>
+    <ul>
+        {% for language in languages %}
+            <li>{{ language.name }} - Votes: {{ language.vote_set.count }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+Run the Development Server:
+Run the development server with the following command:
+python manage.py runserver
