@@ -25,54 +25,78 @@ go to your folder --> go in poll --> go to
 views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import ProgrammingLanguage
-
 def index(request):
     languages = ProgrammingLanguage.objects.all()
     return render(request, 'poll/index.html', {'languages': languages})
-
 def vote(request, language_id):
     language = get_object_or_404(ProgrammingLanguage, pk=language_id)
     language.votes += 1
     language.save()
     return redirect('poll:index')
 
-go to in your folder --> again goto in poll --> create folder templates --> in that create poll folder
-create index.html in it
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Favorite Programming Language Poll</title>
-</head>
-<body>
-    <h1>Vote for Your Favorite Programming Language</h1>
-    <ul>
-        {% for language in languages %}
-            <li>{{ language.name }} - Votes: {{ language.votes }} <a href="{% url 'poll:vote' language.id %}">Vote</a></li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
-
-
 go in your folder --> go to poll --> create urls.py (it is not exist)
 from django.urls import path
 from . import views
-
 app_name = 'poll'
 urlpatterns = [
     path('', views.index, name='index'),
     path('<int:language_id>/vote/', views.vote, name='vote'),
 ]
 
-go in your folder --> go to programming_languauge poll --> go in
-urls.py
+# poll_project/urls.py (it is exist)
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('poll/', include('poll.urls')),
+    path('', include('poll_app.urls')),
 ]
+
+go to in your folder --> again goto in poll --> create folder templates --> in that create poll folder
+create index.html in it
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programming Language Poll</title>
+</head>
+<body>
+    <h1>Vote for Your Favorite Programming Language</h1>
+    <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+        {% for language in languages %}
+            <label>
+                <input type="radio" name="language" value="{{ language.id }}">
+                {{ language.name }}
+            </label><br>
+        {% endfor %}
+        <button type="submit">Vote</button>
+    </form>
+</body>
+</html>
+
+admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Programming Language Poll</title>
+</head>
+<body>
+    <h1>Admin - Manage Programming Languages</h1>
+    <ul>
+        {% for language in languages %}
+            <li>{{ language.name }} - Votes: {{ language.vote_set.count }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+go to settings.py --> 'poll_app',
+python manage.py makemigrations
+python manage.py migrate
 
 Run the Development Server
 python manage.py runserver
